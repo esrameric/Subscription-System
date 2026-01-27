@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: subscription-postgres
+    environment:
+      POSTGRES_DB: subscription_db
+      POSTGRES_USER: subscription_user
+      POSTGRES_PASSWORD: subscription_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - subscription_pgdata:/var/lib/postgresql/data
+
+volumes:
+  subscription_pgdata:

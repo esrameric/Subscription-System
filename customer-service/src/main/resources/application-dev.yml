@@ -1,0 +1,39 @@
+# Spring Boot Development Configuration File
+# This file contains application settings for the development environment
+# To activate: --spring.profiles.active=dev
+
+spring:
+  # Database Connection Settings
+  # Uses H2 in-memory database for development
+  datasource:
+    url: jdbc:h2:mem:customerdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA (Java Persistence API) Settings
+  # Configuration for Hibernate ORM
+  jpa:
+    hibernate:
+      ddl-auto: update  # Automatically update database schema
+    show-sql: true  # Log SQL queries to console
+
+# Server Settings
+# Port on which the application will run
+server:
+  port: 8081
+
+# Application-Specific Settings
+app:
+  # JWT (JSON Web Token) Security Settings
+  jwt:
+    secret: ${JWT_SECRET:change_me_in_env}  # JWT signing secret (from environment variable)
+    expiration-ms: 3600000 # 1 hour  # Token expiration time in milliseconds
+
+# Management and Monitoring Settings
+# Endpoints for Spring Boot Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # Expose health check and application info endpoints
