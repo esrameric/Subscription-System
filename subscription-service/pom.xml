@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<!-- 
+		Parent POM: Spring Boot Starter Parent
+		- Spring Boot projelerinin temel konfigürasyonunu sağlar
+		- Dependency versiyonlarını merkezi olarak yönetir
+		- Maven plugin konfigürasyonlarını içerir
+	-->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.12</version>
+		<relativePath/>
+	</parent>
+	
+	<!-- Proje Tanımlayıcıları -->
+	<groupId>com.subscription</groupId>
+	<artifactId>subscription-service</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>subscription-service</name>
+	<description>Subscription management service</description>
+
+	<properties>
+		<!-- Java 21 kullanıyoruz - modern Java özellikleri için -->
+		<java.version>21</java.version>
+		<spring-cloud.version>2023.0.0</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<!-- 
+			Spring Boot Starter Actuator
+			- Uygulamanın sağlık durumunu izlemek için (/actuator/health)
+			- Metrics ve monitoring endpoints sağlar
+			- Production-ready özellikler sunar
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		
+		<!-- 
+			Spring Boot Starter Data JPA
+			- Veritabanı işlemleri için ORM (Object-Relational Mapping)
+			- Repository pattern implementasyonu
+			- Hibernate ile birlikte gelir
+			- CRUD işlemlerini otomatik yönetir
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<!-- 
+			Spring Boot Starter Security
+			- Authentication (kimlik doğrulama) ve Authorization (yetkilendirme)
+			- JWT token tabanlı güvenlik için temel
+			- HTTP request'leri koruma
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		
+		<!-- 
+			Spring Boot Starter Validation
+			- @NotNull, @NotBlank, @Valid gibi validation annotasyonları
+			- DTO'lardaki verileri doğrulamak için
+			- Bean Validation (JSR 380) implementasyonu
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		
+		<!-- 
+			Spring Boot Starter Web
+			- RESTful web servisleri oluşturmak için
+			- @RestController, @RequestMapping gibi annotasyonlar
+			- Embedded Tomcat server
+			- JSON dönüşümü (Jackson)
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- 
+			Spring Kafka
+			- Kafka entegrasyonu için
+			- Payment service'ten gelen event'leri dinler
+			- Consumer ve producer desteği
+		-->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+		<!-- Eureka Client - Service Discovery -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
+		<!-- OpenFeign - REST Client -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+
+		<!-- 
+			PostgreSQL Driver
+			- Production ortamında kullanılacak veritabanı
+			- Güçlü ve açık kaynaklı relational database
+		-->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		
+		<!-- 
+			H2 Database
+			- Development ve test için in-memory database
+			- Hızlı test ve geliştirme
+			- Web console ile kolay yönetim
+		-->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		
+		<!-- 
+			Lombok
+			- Boilerplate kod azaltır (getter, setter, constructor)
+			- @Data, @Builder, @AllArgsConstructor gibi annotasyonlar
+			- Kod okunabilirliğini artırır
+		-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		
+		<!-- Spring Boot Test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Kafka Test -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- 
+			JWT (JSON Web Token) Kütüphaneleri
+			- Token tabanlı authentication için
+			- Stateless API güvenliği
+			- jjwt-api: Interface'ler ve sözleşmeler
+			- jjwt-impl: Implementasyon detayları
+			- jjwt-jackson: JSON serialization/deserialization
+		-->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.12.6</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<!-- Maven Compiler Plugin - Java 21 için -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<release>21</release>
+				</configuration>
+			</plugin>
+			
+			<!-- Spring Boot Maven Plugin - Executable JAR oluşturur -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<!-- Lombok'u final JAR'dan çıkar (sadece compile-time gerekli) -->
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

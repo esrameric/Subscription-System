@@ -1,0 +1,98 @@
+# Ana Uygulama Konfigürasyonu
+server:
+  port: 8082  # Subscription Service port numarası
+  address: 0.0.0.0  # Tüm network interface'lerinden erişim
+
+spring:
+  application:
+    name: subscription-service  # Servis adı - API Gateway ve Eureka için
+
+  # Veritabanı Konfigürasyonu - PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/subscription_db  # Veritabanı bağlantı URL'i
+    username: subscription_user  # Veritabanı kullanıcı adı
+    password: subscription_pass  # Veritabanı şifresi
+    driver-class-name: org.postgresql.Driver  # JDBC driver
+
+  # JPA/Hibernate Konfigürasyonu
+  jpa:
+    hibernate:
+      # ddl-auto: update
+      # - create: Tabloları her seferinde yeniden oluşturur (VERİ KAYBI!)
+      # - update: Mevcut tabloları günceller (Development için güvenli)
+      # - validate: Sadece schema'yı kontrol eder (Production için önerilen)
+      # - none: Hiçbir şey yapmaz
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect  # PostgreSQL SQL lehçesi
+    open-in-view: false  # OSIV pattern'i kapatır (performance için)
+    defer-datasource-initialization: true  # data.sql Hibernate'den sonra çalışsın
+
+  # SQL Initialization - data.sql için
+  sql:
+    init:
+      mode: always  # Her zaman data.sql çalıştır
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: subscription-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+# Uygulama Özel Konfigürasyonları
+app:
+  kafka:
+    topics:
+      payment-events: payment-events
+
+  jwt:
+    # JWT Secret Key - Production'da environment variable kullan!
+    secret: ${JWT_SECRET:change_me_in_env}
+    # Token geçerlilik süresi (millisecond) - 1 saat
+    expiration-ms: 3600000
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+---
+# Development Profili - H2 In-Memory Database
+# Kullanım: --spring.profiles.active=local-h2
+spring:
+  config:
+    activate:
+      on-profile: local-h2
+
+  # H2 In-Memory Database Konfigürasyonu
+  datasource:
+    url: jdbc:h2:mem:subscriptiondb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # H2 Console - Web tabanlı database yönetimi
+  # Erişim: http://localhost:8082/h2-console
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

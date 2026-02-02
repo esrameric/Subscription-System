@@ -1,0 +1,687 @@
+{
+  "info": {
+    "_postman_id": "9ad27eed-fa76-4a0a-91f6-47459c1fc0c2",
+    "name": "Customer Service - Subscription Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51805728",
+    "_collection_link": "https://go.postman.co/collection/51805728-9ad27eed-fa76-4a0a-91f6-47459c1fc0c2?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "API Gateway Entrypoints",
+      "item": [
+        {
+          "name": "Register (Gateway)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"user@example.com\", \"password\": \"string\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new customer via API Gateway on port 8080 ({{baseUrl}} → http://localhost:8080)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Gateway)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"user@example.com\", \"password\": \"string\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticate a customer via API Gateway on port 8080 ({{baseUrl}} → http://localhost:8080) and obtain JWT token."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Profile (Gateway)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "me"
+              ]
+            },
+            "description": "Get the current logged-in customer profile via API Gateway on port 8080 using Authorization: Bearer {{token}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Subscriptions (Gateway - Planned)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscriptions/customer/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "customer",
+                "me"
+              ]
+            },
+            "description": "[Planned] Future API Gateway route to expose subscriptions for the current customer: /api/v1/subscriptions/customer/me on port 8080."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer Service (8081)",
+      "item": [
+        {
+          "name": "Register (Customer Service 8081)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Test User\",\r\n  \"email\": \"user1@mail.com\",\r\n  \"password\": \"Test1234!\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new customer directly against Customer Service on http://localhost:8081 (also reachable as http://customer-service:8081)."
+          },
+          "response": []
+        },
+        {
+          "name": "Login (Customer Service 8081)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "const token = json.token || json.access_token || json.jwt || json.data?.token;\r",
+                  "\r",
+                  "pm.test(\"Token exists\", () => pm.expect(token).to.be.a(\"string\").and.not.empty);\r",
+                  "\r",
+                  "if (token) pm.environment.set(\"token\", token);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"user1@mail.com\",\"password\":\"Test1234!\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/v1/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticate a customer directly against Customer Service on http://localhost:8081 (also reachable as http://customer-service:8081) and obtain JWT token."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Profile (Customer Service 8081)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8081/api/v1/customers/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8081",
+              "path": [
+                "api",
+                "v1",
+                "customers",
+                "me"
+              ]
+            },
+            "description": "Get the current logged-in customer profile directly from Customer Service on http://localhost:8081 using Authorization: Bearer {{token}} (service host: http://customer-service:8081)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Subscription Service (8082)",
+      "item": [
+        {
+          "name": "Create Subscription",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const text = pm.response.text();\r",
+                  "if (text && text.trim()) {\r",
+                  "  const json = pm.response.json();\r",
+                  "  const subscriptionId =\r",
+                  "    json.id ||\r",
+                  "    json.subscriptionId ||\r",
+                  "    json.data?.id ||\r",
+                  "    json.data?.subscriptionId;\r",
+                  "\r",
+                  "  if (subscriptionId) {\r",
+                  "    pm.environment.set(\"subscriptionId\", subscriptionId.toString());\r",
+                  "    console.log(\"Saved subscriptionId:\", subscriptionId);\r",
+                  "  } else {\r",
+                  "    console.log(\"subscriptionId not found in response:\", json);\r",
+                  "  }\r",
+                  "} else {\r",
+                  "  console.log(\"Empty response body; cannot save subscriptionId automatically.\");\r",
+                  "}\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"offerId\": \"{{offerId}}\", \"customerId\": \"{{customerId}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8082/api/v1/subscriptions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "subscriptions"
+              ]
+            },
+            "description": "Create a new subscription directly on Subscription Service at http://localhost:8082 (http://subscription-service:8082 in Docker)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subscription by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8082/api/v1/subscriptions/{{subscriptionId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "{{subscriptionId}}"
+              ]
+            },
+            "description": "Fetch a subscription by ID from Subscription Service at http://localhost:8082 using path variable {{subscriptionId}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Subscriptions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const list = pm.response.json();\r",
+                  "pm.test(\"subscriptions not empty\", () => pm.expect(list.length).to.be.above(0));\r",
+                  "\r",
+                  "// Aktif olanı tercih et, yoksa ilkini al\r",
+                  "const active = list.find(s => (s.status || \"\").toUpperCase() === \"ACTIVE\") || list[0];\r",
+                  "const subscriptionId = active.id || active.subscriptionId;\r",
+                  "\r",
+                  "pm.environment.set(\"subscriptionId\", subscriptionId.toString());\r",
+                  "console.log(\"Saved subscriptionId:\", subscriptionId);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8082/api/v1/subscriptions/customer/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "customer",
+                "me"
+              ]
+            },
+            "description": "Get subscriptions for the currently authenticated customer from Subscription Service at http://localhost:8082 using Authorization: Bearer {{token}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Subscription",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"SUSPEND\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8082/api/v1/subscriptions/{{subscriptionId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "subscriptions",
+                "{{subscriptionId}}"
+              ]
+            },
+            "description": "Update an existing subscription on Subscription Service at http://localhost:8082 using path variable {{subscriptionId}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Offer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "const offerId = json.id || json.offerId || json.data?.id || json.data?.offerId;\r",
+                  "\r",
+                  "pm.test(\"Status is 200/201\", () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));\r",
+                  "\r",
+                  "if (offerId) {\r",
+                  "  pm.environment.set(\"offerId\", offerId.toString());\r",
+                  "}\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Basic Plan\",\r\n  \"price\": 99,\r\n  \"currency\": \"TRY\",\r\n  \"durationDays\": 30,\r\n  \"active\": true\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8082/api/v1/offers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "offers"
+              ]
+            },
+            "description": "Create a new subscription offer on Subscription Service at http://localhost:8082 (http://subscription-service:8082 in Docker)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Offer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/api/v1/offers/{{offerId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "offers",
+                "{{offerId}}"
+              ]
+            },
+            "description": "Fetch an offer by ID from Subscription Service at http://localhost:8082 using path variable {{offerId}}."
+          },
+          "response": []
+        },
+        {
+          "name": "List Offers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer{{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8082/api/v1/offers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "offers"
+              ]
+            },
+            "description": "List all offers from Subscription Service at http://localhost:8082."
+          },
+          "response": []
+        },
+        {
+          "name": "List Active Offers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();\r",
+                  "\r",
+                  "// json bir array ise ilk elemanı al\r",
+                  "const first = Array.isArray(json) ? json[0] : (json.data?.[0] || null);\r",
+                  "const offerId = first?.id || first?.offerId;\r",
+                  "\r",
+                  "if (offerId) {\r",
+                  "  pm.environment.set(\"offerId\", offerId.toString());\r",
+                  "}\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8082/api/v1/offers/active",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "offers",
+                "active"
+              ]
+            },
+            "description": "List all active offers from Subscription Service at http://localhost:8082."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Offer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Updated Offer\", \"price\": 19.99}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8082/api/v1/offers/{{offerId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "offers",
+                "{{offerId}}"
+              ]
+            },
+            "description": "Update an existing offer on Subscription Service at http://localhost:8082 using path variable {{offerId}}."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Offer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8082/api/v1/offers/{{offerId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8082",
+              "path": [
+                "api",
+                "v1",
+                "offers",
+                "{{offerId}}"
+              ]
+            },
+            "description": "Delete an existing offer on Subscription Service at http://localhost:8082 using path variable {{offerId}}."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
