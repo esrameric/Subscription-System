@@ -2,6 +2,7 @@ package com.subscription.subscription;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -23,10 +24,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @EnableFeignClients: OpenFeign REST client'ları aktif eder
  *   - Payment Service ile iletişim için kullanılır
  *   - Declarative REST client (interface-based)
+ * 
+ * @EnableCaching: Spring Cache abstraction'ı aktif eder
+ *   - @Cacheable, @CacheEvict annotation'larını etkinleştirir
+ *   - Redis ile entegre çalışır
  */
 @SpringBootApplication
 @EnableScheduling  // Zamanlanmış görevler için (Subscription renewal job)
 @EnableFeignClients  // Feign REST client'ları için
+@EnableCaching  // Cache desteği için (Redis ile)
 public class SubscriptionServiceApplication {
 
 	/**

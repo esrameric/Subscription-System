@@ -2,7 +2,9 @@ package com.subscription.subscription.offer.service;
 
 import com.subscription.subscription.offer.dto.CreateOfferRequest;
 import com.subscription.subscription.offer.dto.OfferResponse;
+
 import java.util.List;
+import java.util.Set;
 
 /**
  * OfferService Interface - Offer Business Logic Contract
@@ -88,4 +90,19 @@ public interface OfferService {
      * @throws IllegalArgumentException Offer bulunamazsa
      */
     void deleteOffer(Long id);
+
+    /**
+     * Tüm offer ID'lerini döndürür (cache'li)
+     * 
+     * Bu method Redis'te cache'lenir. İlk çağrıda database'den çeker,
+     * sonraki çağrılarda Redis'ten döner.
+     * 
+     * Cache:
+     * - Cache name: offerIds
+     * - Key: 'all'
+     * - TTL: Configurable (varsayılan 6 saat)
+     * 
+     * @return Tüm offer ID'lerinin seti
+     */
+    Set<Long> getAllOfferIds();
 }

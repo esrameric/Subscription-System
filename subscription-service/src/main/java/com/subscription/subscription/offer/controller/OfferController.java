@@ -6,7 +6,9 @@ import com.subscription.subscription.offer.service.OfferService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.Set;
 
 /**
  * OfferController - Offer RESTful API Endpoints
@@ -203,5 +205,20 @@ public class OfferController {
     public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
         offerService.deleteOffer(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Tüm Offer ID'lerini Getir (Cache Test Endpoint)
+     * 
+     * Bu endpoint Redis cache'i test etmek için kullanılır.
+     * İlk çağrıda database'den çeker (cache miss), sonraki çağrılarda Redis'ten döner (cache hit).
+     * 
+     * URL: GET /api/v1/offers/ids
+     * 
+     * @return Tüm offer ID'lerinin seti
+     */
+    @GetMapping("/ids")
+    public ResponseEntity<Set<Long>> getAllOfferIds() {
+        return ResponseEntity.ok(offerService.getAllOfferIds());
     }
 }

@@ -129,7 +129,7 @@ public class SubscriptionController {
      * 
      * Örnek: GET /api/v1/subscriptions/5
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public ResponseEntity<SubscriptionResponse> getSubscription(@PathVariable Long id) {
         return ResponseEntity.ok(subscriptionService.getSubscriptionById(id));
     }
@@ -186,6 +186,18 @@ public class SubscriptionController {
     }
 
     /**
+     * Customer ID ile Subscription'ları Getirme Endpoint
+     * 
+     * GET /api/v1/subscriptions/customer/{customerId}
+     * 
+     * Test amaçlı: Belirli bir customer'ın tüm subscription'larını getirir
+     */
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<SubscriptionResponse>> getSubscriptionsByCustomerId(@PathVariable Long customerId) {
+        return ResponseEntity.ok(subscriptionService.getCustomerSubscriptions(customerId));
+    }
+
+    /**
      * Subscription Güncelleme Endpoint
      * 
      * PUT /api/v1/subscriptions/{id}
@@ -211,7 +223,7 @@ public class SubscriptionController {
      *   "status": "DEACTIVE"
      * }
      */
-    @PutMapping("/{id}")
+    @PutMapping("/{id:\\d+}")
     public ResponseEntity<SubscriptionResponse> updateSubscription(
             @PathVariable Long id, 
             @Valid @RequestBody UpdateSubscriptionRequest request) {
@@ -247,7 +259,7 @@ public class SubscriptionController {
      *   "reason": "Insufficient funds"
      * }
      */
-    @PostMapping("/{id}/renew")
+    @PostMapping("/{id:\\d+}/renew")
     public ResponseEntity<?> renewSubscription(@PathVariable Long id) {
         return ResponseEntity.ok(subscriptionService.processSubscriptionRenewal(id));
     }

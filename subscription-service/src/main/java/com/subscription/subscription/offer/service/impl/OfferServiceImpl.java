@@ -5,9 +5,15 @@ import com.subscription.subscription.offer.dto.OfferResponse;
 import com.subscription.subscription.offer.model.Offer;
 import com.subscription.subscription.offer.repository.OfferRepository;
 import com.subscription.subscription.offer.service.OfferService;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,8 +35,13 @@ import java.util.stream.Collectors;
  * - @Transactional kullanılabilir (gerektiğinde)
  * - Spring otomatik transaction yönetimi yapar
  * - Rollback desteği sağlar
+ * 
+ * Cache Stratejisi:
+ * - getAllOfferIds(): Redis'te cache'lenir (@Cacheable)
+ * - create/update/delete: Cache invalidation (@CacheEvict)
  */
 @Service
+@Slf4j
 public class OfferServiceImpl implements OfferService {
 
     /**
@@ -66,9 +77,14 @@ public class OfferServiceImpl implements OfferService {
      * - Lombok @Builder annotation'ı ile otomatik oluşturulur
      * - Okunabilir ve zincirleme syntax
      * - Örnek: Offer.builder().name("Premium").price(99.99).build()
+     * 
+     * Cache:
+     * - Yeni offer oluşturulduğunda offerIds cache'i temizlenir
      */
     @Override
+    @CacheEvict(cacheNames = "offerIds", allEntries = true)
     public OfferResponse createOffer(CreateOfferRequest request) {
+        log.info("Creating new offer, evicting offerIds cache");
         // Entity oluştur
         Offer offer = Offer.builder()
                 .name(request.getName())
@@ -147,9 +163,14 @@ public class OfferServiceImpl implements OfferService {
      * JPA'nın save() methodu:
      * - ID mevcutsa UPDATE, yoksa INSERT yapar
      * - Burada ID mevcut olduğu için UPDATE yapar
+     * 
+     * Cache:
+     * - Offer güncellendiğinde offerIds cache'i temizlenir
      */
     @Override
+    @CacheEvict(cacheNames = "offerIds", allEntries = true)
     public OfferResponse updateOffer(Long id, CreateOfferRequest request) {
+        log.info("Updating offer id={}, evicting offerIds cache", id);
         // Mevcut offer'ı getir
         Offer offer = offerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Offer not found: " + id));
@@ -173,15 +194,45 @@ public class OfferServiceImpl implements OfferService {
      * - Hard delete yapar (kalıcı silme)
      * - Production'da soft delete tercih edilebilir (status = DELETED)
      * - Aktif abonelikleri olan offer'lar silinmeden önce kontrol edilmeli
+     * 
+     * Cache:
+     * - Offer silindiğinde offerIds cache'i temizlenir
      */
     @Override
+    @CacheEvict(cacheNames = "offerIds", allEntries = true)
     public void deleteOffer(Long id) {
+        log.info("Deleting offer id={}, evicting offerIds cache", id);
         // Offer var mı kontrol et
         if (!offerRepository.existsById(id)) {
             throw new IllegalArgumentException("Offer not found: " + id);
         }
         // Sil
         offerRepository.deleteById(id);
+    }
+
+    /**
+     * Tüm Offer ID'lerini Getir (Cache'li)
+     * 
+     * Redis Cache:
+     * - Cache name: offerIds
+     * - Key: 'all'
+     * - İlk çağrıda database'den çeker ve Redis'e kaydeder
+     * - Sonraki çağrılarda Redis'ten döner
+     * - TTL: Configurable (varsayılan 6 saat)
+     * 
+     * Performans:
+     * - Sadece ID'leri çeker, full entity değil
+     * - Küçük veri boyutu ile hızlı cache hit
+     * 
+     * @return Tüm offer ID'lerinin seti
+     */
+    @Override
+    @Cacheable(cacheNames = "offerIds", key = "'all'")
+    public Set<Long> getAllOfferIds() {
+        log.info("Fetching all offer IDs from database (cache miss)");
+        Set<Long> offerIds = offerRepository.findAllOfferIds();
+        log.info("Found {} offer IDs", offerIds.size());
+        return offerIds;
     }
 
     /**

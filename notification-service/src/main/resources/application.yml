@@ -1,0 +1,101 @@
+# Notification Service Configuration
+
+server:
+  port: 8084
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: notification-service
+
+  # Database Configuration - PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5434/notification_db
+    username: notification_user
+    password: notification_pass
+    driver-class-name: org.postgresql.Driver
+
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    listener:
+      ack-mode: manual
+
+  # Mail Configuration (Gmail example - update with your credentials)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# Application Configuration
+app:
+  kafka:
+    topics:
+      payment-events: payment-events
+      subscription-events: subscription-events
+  
+  notification:
+    email:
+      from: noreply@subscription-system.com
+      enabled: true
+    sms:
+      enabled: false
+
+# Logging
+logging:
+  level:
+    com.subscription.notification: INFO
+    org.springframework.kafka: INFO
+    org.springframework.mail: DEBUG
+
+---
+# Development Profile - H2 In-Memory Database
+spring:
+  config:
+    activate:
+      on-profile: local-h2
+
+  datasource:
+    url: jdbc:h2:mem:notificationdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console

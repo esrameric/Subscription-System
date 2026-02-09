@@ -98,6 +98,26 @@
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
 
+		<!--
+			Spring Cache
+			- @Cacheable, @CacheEvict annotation desteği
+			- Cache abstraction layer
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
+		<!--
+			Spring Data Redis
+			- Redis bağlantısı ve işlemleri için
+			- CacheManager implementasyonu için gerekli
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
 		<!-- Eureka Client - Service Discovery -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

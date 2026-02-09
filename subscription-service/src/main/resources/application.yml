@@ -45,6 +45,16 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
 
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+# Cache Configuration
+cache:
+  ttl-seconds: ${CACHE_TTL_SECONDS:21600}  # Default 6 saat (21600 saniye)
+
 # Uygulama Özel Konfigürasyonları
 app:
   kafka:

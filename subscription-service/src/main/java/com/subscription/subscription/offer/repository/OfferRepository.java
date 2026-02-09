@@ -2,8 +2,11 @@ package com.subscription.subscription.offer.repository;
 
 import com.subscription.subscription.offer.model.Offer;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
+import java.util.Set;
 
 /**
  * OfferRepository - Offer Entity için Data Access Layer
@@ -56,4 +59,24 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
      * List<Offer> activeOffers = offerRepository.findByStatus("ACTIVE");
      */
     List<Offer> findByStatus(String status);
+
+    /**
+     * Tüm offer ID'lerini döndürür (sadece ID'ler, entity değil)
+     * 
+     * Performans için optimize edilmiş:
+     * - Full entity yerine sadece ID çeker
+     * - Cache için ideal (küçük veri boyutu)
+     * 
+     * @return Tüm offer ID'lerinin seti
+     */
+    @Query("SELECT o.id FROM Offer o")
+    Set<Long> findAllOfferIds();
+
+    /**
+     * Sadece aktif offer ID'lerini döndürür
+     * 
+     * @return Aktif offer ID'lerinin seti
+     */
+    @Query("SELECT o.id FROM Offer o WHERE o.status = 'ACTIVE'")
+    Set<Long> findActiveOfferIds();
 }
