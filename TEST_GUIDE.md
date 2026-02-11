@@ -174,3 +174,26 @@ grep "Registering application" /tmp/subscription.log
 - [ ] Circuit breaker ekle (Resilience4j)
 - [ ] Distributed tracing (Sleuth + Zipkin)
 - [ ] Config Server ekle
+
+## 🐳 Docker Ortamında Profil ve DB Bağlantısı
+
+- Docker Compose ile başlatırken Spring Boot servisleri `docker` profili ile başlar (SPRING_PROFILES_ACTIVE=docker).
+- Her servisin `application-docker.yml` dosyasında veya `docker-compose.yml` environment kısmında, veritabanı bağlantı adresi olarak **localhost** yerine ilgili DB container adı kullanılır:
+
+  | Service               | DB Host (compose)         |
+  |---------------------- |--------------------------|
+  | subscription-service  | subscription-postgres:5432|
+  | payment-service       | payment-postgres:5432     |
+  | notification-service  | notification-postgres:5432|
+  | customer-service      | subscription-postgres:5432|
+
+- Örnek connection string:
+  ```
+  jdbc:postgresql://subscription-postgres:5432/subscription_db
+  ```
+- Containerlar arası bağlantıda **host portu** değil, her zaman container iç portu (5432) ve compose servis adı kullanılır.
+- Değişiklik sonrası servisleri yeniden başlatın:
+  ```bash
+  docker compose up -d --force-recreate subscription-service payment-service customer-service notification-service
+  ```
+- Eğer bir servis Exited(1) oluyorsa, logda `Connection to localhost:5432 refused` hatası görüyorsanız, config dosyasında veya environment'ta DB host'unu yukarıdaki gibi güncelleyin.

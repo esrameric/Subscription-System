@@ -91,6 +91,124 @@ services:
     networks:
       - subscription-network
 
+  customer-service:
+    image: eclipse-temurin:21-jdk
+    container_name: customer-service
+    depends_on:
+      - subscription-postgres
+      - kafka
+      - eureka-server
+    volumes:
+      - ./customer-service/target/customer-service-0.0.1-SNAPSHOT.jar:/app/app.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://subscription-postgres:5432/subscription_db
+      SPRING_DATASOURCE_USERNAME: subscription_user
+      SPRING_DATASOURCE_PASSWORD: subscription_pass
+      JAVA_OPTS: ""
+    command: ["java", "-jar", "/app/app.jar"]
+    ports:
+      - "8081:8081"
+    networks:
+      - subscription-network
+
+  payment-service:
+    image: eclipse-temurin:21-jdk
+    container_name: payment-service
+    depends_on:
+      - payment-postgres
+      - kafka
+      - eureka-server
+    volumes:
+      - ./payment-service/target/payment-service-0.0.1-SNAPSHOT.jar:/app/app.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-postgres:5432/payment_db
+      SPRING_DATASOURCE_USERNAME: payment_user
+      SPRING_DATASOURCE_PASSWORD: payment_pass
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: payment-service-group
+      JAVA_OPTS: ""
+    command: ["java", "-jar", "/app/app.jar"]
+    ports:
+      - "8082:8082"
+    networks:
+      - subscription-network
+
+  subscription-service:
+    image: eclipse-temurin:21-jdk
+    container_name: subscription-service
+    depends_on:
+      - subscription-postgres
+      - kafka
+      - eureka-server
+    volumes:
+      - ./subscription-service/target/subscription-service-0.0.1-SNAPSHOT.jar:/app/app.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://subscription-postgres:5432/subscription_db
+      SPRING_DATASOURCE_USERNAME: subscription_user
+      SPRING_DATASOURCE_PASSWORD: subscription_pass
+      JAVA_OPTS: ""
+    command: ["java", "-jar", "/app/app.jar"]
+    ports:
+      - "8083:8083"
+    networks:
+      - subscription-network
+
+  notification-service:
+    image: eclipse-temurin:21-jdk
+    container_name: notification-service
+    depends_on:
+      - notification-postgres
+      - kafka
+      - eureka-server
+    volumes:
+      - ./notification-service/target/notification-service-0.0.1-SNAPSHOT.jar:/app/app.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://notification-postgres:5432/notification_db
+      SPRING_DATASOURCE_USERNAME: notification_user
+      SPRING_DATASOURCE_PASSWORD: notification_pass
+      JAVA_OPTS: ""
+    command: ["java", "-jar", "/app/app.jar"]
+    ports:
+      - "8084:8084"
+    networks:
+      - subscription-network
+
+  api-gateway:
+    image: eclipse-temurin:21-jdk
+    container_name: api-gateway
+    depends_on:
+      - kafka
+      - eureka-server
+    volumes:
+      - ./api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar:/app/app.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JAVA_OPTS: ""
+    command: ["java", "-jar", "/app/app.jar"]
+    ports:
+      - "8080:8080"
+    networks:
+      - subscription-network
+
+  eureka-server:
+    image: eclipse-temurin:21-jdk
+    container_name: eureka-server
+    volumes:
+      - ./eureka-server/target/eureka-server-0.0.1-SNAPSHOT.jar:/app/app.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      JAVA_OPTS: ""
+    command: ["java", "-jar", "/app/app.jar"]
+    ports:
+      - "8761:8761"
+    networks:
+      - subscription-network
+
   # Redis - Subscription Service Cache için
   subscription-redis:
     image: redis:7-alpine

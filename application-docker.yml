@@ -1,0 +1,18 @@
+# Docker ortamı için Payment Service config
+spring:
+  datasource:
+    url: jdbc:postgresql://payment-postgres:5432/${PAYMENT_DB_NAME:payment_db}
+    username: ${PAYMENT_DB_USER:payment_user}
+    password: ${PAYMENT_DB_PASS:payment_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: payment-service-group

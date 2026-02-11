@@ -1,6 +1,12 @@
 package com.subscription.subscription.job;
 
 import com.subscription.subscription.subscription.service.SubscriptionService;
+import com.subscription.subscription.kafka.PaymentRequestProducer;
+import com.subscription.subscription.dto.PaymentRequest;
+import com.subscription.subscription.offer.repository.OfferRepository;
+import com.subscription.subscription.subscription.repository.SubscriptionRepository;
+import com.subscription.subscription.subscription.model.Subscription;
+import com.subscription.subscription.offer.model.Offer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.util.logging.Logger;
@@ -84,12 +90,21 @@ public class SubscriptionRenewalJob {
      * Business logic'i service layer'da tutuyoruz (best practice)
      */
     private final SubscriptionService subscriptionService;
+    private final PaymentRequestProducer paymentRequestProducer;
+    private final SubscriptionRepository subscriptionRepository;
+    private final OfferRepository offerRepository;
 
     /**
      * Constructor Injection
      */
-    public SubscriptionRenewalJob(SubscriptionService subscriptionService) {
+    public SubscriptionRenewalJob(SubscriptionService subscriptionService,
+                                  PaymentRequestProducer paymentRequestProducer,
+                                  SubscriptionRepository subscriptionRepository,
+                                  OfferRepository offerRepository) {
         this.subscriptionService = subscriptionService;
+        this.paymentRequestProducer = paymentRequestProducer;
+        this.subscriptionRepository = subscriptionRepository;
+        this.offerRepository = offerRepository;
     }
 
     /**
@@ -129,35 +144,29 @@ public class SubscriptionRenewalJob {
      */
     @Scheduled(cron = "0 0 0 * * ?")  // Her gun saat 00:00'da calis
     public void renewSubscriptions() {
-        // Job basladigini logla
         logger.info("Starting subscription renewal job...");
-        
         try {
-            // Yenilenmesi gereken abonelikleri getir
             // nextRenewalDate < now && status = ACTIVE
-            subscriptionService.getSubscriptionsToRenew()
-                    // Stream API ile her subscription'i isle
-                    .forEach(subscription -> {
-                        // Yenileme islemini gerceklestir
-                        subscriptionService.renewSubscription(subscription.getId());
-                        
-                        // Basarili yenilemeyi logla
-                        logger.info("Subscription renewed: " + subscription.getId());
-                    });
-            
-            // Job basariyla tamamlandi
+            var subscriptions = subscriptionRepository.findByNextRenewalDateBeforeAndStatus(java.time.Instant.now(), "ACTIVE");
+            subscriptions.forEach(subscription -> {
+                try {
+                    Offer offer = offerRepository.findById(subscription.getOfferId())
+                        .orElseThrow(() -> new IllegalArgumentException("Offer not found: " + subscription.getOfferId()));
+                    PaymentRequest paymentRequest = PaymentRequest.builder()
+                        .subscriptionId(subscription.getId())
+                        .customerId(subscription.getCustomerId())
+                        .amount(offer.getPrice())
+                        .paymentMethod("CREDIT_CARD") // Gerekirse dinamik yap
+                        .build();
+                    paymentRequestProducer.sendPaymentRequest(paymentRequest);
+                    logger.info("Payment request event produced for subscriptionId=" + subscription.getId());
+                } catch (Exception ex) {
+                    logger.severe("Failed to produce payment request for subscriptionId=" + subscription.getId() + ": " + ex.getMessage());
+                }
+            });
             logger.info("Subscription renewal job completed successfully");
-            
         } catch (Exception e) {
-            // Hata durumunda loglama
-            // SEVERE: Kritik hata seviyesi
             logger.severe("Error during subscription renewal job: " + e.getMessage());
-            
-            // Ileride:
-            // - Exception'i rethrow etmeyiz (job tekrar calisacak)
-            // - Alert gonderilir (email, Slack, PagerDuty)
-            // - Metrics guncellenir (failed_renewals_count)
-            // - Dead letter queue'ya yazilabilir (Kafka, RabbitMQ)
         }
     }
     

@@ -7,3 +7,20 @@
 Thumbs.db
 **/.env
 **/*.env
+
+# Java/Maven
+*.class
+*.jar
+*.war
+*.ear
+!.mvn/wrapper/maven-wrapper.jar
+
+# Temporary
+*.tmp
+*.swp
+
+# Test outputs
+/test-output/
+
+# Postman
+*.postman_environment.json

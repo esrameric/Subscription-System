@@ -76,10 +76,12 @@ public class User {
     // User account status (ACTIVE, INACTIVE, SUSPENDED, etc.)
     // Default value is "ACTIVE" for new users
     @Column(nullable = false)
+    @Builder.Default
     private String status = "ACTIVE";
 
     // Account creation timestamp
     // Instant.now() sets current timestamp when object is created
     // No @Column annotation needed - uses default mapping
+    @Builder.Default
     private Instant createdAt = Instant.now();
 }

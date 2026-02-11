@@ -295,65 +295,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional
     public Object processSubscriptionRenewal(Long id) {
-        log.info("Processing subscription renewal: subscriptionId={}", id);
-        
-        // 1. Subscription'ı getir
-        Subscription subscription = subscriptionRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Subscription not found: " + id));
-
-        // 2. Offer'ı getir (amount için)
-        Offer offer = offerRepository.findById(subscription.getOfferId())
-                .orElseThrow(() -> new IllegalArgumentException("Offer not found: " + subscription.getOfferId()));
-
-        // 3. Payment request oluştur
-        PaymentRequest paymentRequest = PaymentRequest.builder()
-                .subscriptionId(subscription.getId())
-                .customerId(subscription.getCustomerId())
-                .amount(offer.getPrice())  // Offer'dan price bilgisi
-                .paymentMethod("CREDIT_CARD")  // Default payment method
-                .build();
-
-        try {
-            // 4. Payment Service'e istek gönder
-            log.info("Sending payment request to payment-service: {}", paymentRequest);
-            PaymentResponse paymentResponse = paymentServiceClient.createPayment(paymentRequest);
-            
-            // 5. Ödeme başarılı mı kontrol et
-            if ("SUCCESS".equals(paymentResponse.getStatus())) {
-                log.info("Payment successful, subscription will be renewed via Kafka event");
-                
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "Payment processed successfully. Subscription will be renewed.");
-                response.put("paymentId", paymentResponse.getId());
-                response.put("status", paymentResponse.getStatus());
-                response.put("transactionId", paymentResponse.getTransactionId());
-                
-                return response;
-            } else {
-                // Ödeme başarısız - Subscription'ı askıya al
-                log.warn("Payment failed, suspending subscription: {}", paymentResponse.getFailureReason());
-                suspendSubscription(id);
-                
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "Payment failed. Subscription suspended.");
-                response.put("status", "FAILED");
-                response.put("reason", paymentResponse.getFailureReason());
-                
-                return response;
-            }
-        } catch (Exception e) {
-            log.error("Error processing payment for subscription renewal: {}", e.getMessage(), e);
-            
-            // Hata durumunda subscription'ı askıya al
-            suspendSubscription(id);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Payment processing error. Subscription suspended.");
-            response.put("status", "ERROR");
-            response.put("error", e.getMessage());
-            
-            return response;
-        }
+        // Artık bu metodda doğrudan payment-service'e REST çağrısı yapılmaz.
+        // Sadece event-driven akış kullanılacak şekilde güncellendi.
+        throw new UnsupportedOperationException("processSubscriptionRenewal artık event-driven akış ile yönetiliyor. Lütfen SubscriptionRenewalJob'u kullanın.");
     }
 
     /**

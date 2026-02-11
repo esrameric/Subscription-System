@@ -1,0 +1,20 @@
+# Docker ortamı için Subscription Service config
+spring:
+  datasource:
+    url: jdbc:postgresql://subscription-postgres:5432/${SUBSCRIPTION_DB_NAME:subscription_db}
+    username: ${SUBSCRIPTION_DB_USER:subscription_user}
+    password: ${SUBSCRIPTION_DB_PASS:subscription_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  kafka:
+    bootstrap-servers: kafka:9092

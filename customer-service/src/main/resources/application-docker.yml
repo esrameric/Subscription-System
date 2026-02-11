@@ -1,0 +1,14 @@
+# Docker ortamı için Customer Service config
+spring:
+  datasource:
+    url: jdbc:postgresql://subscription-postgres:5432/${CUSTOMER_DB_NAME:subscription_db}
+    username: ${CUSTOMER_DB_USER:subscription_user}
+    password: ${CUSTOMER_DB_PASS:subscription_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false

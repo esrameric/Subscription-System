@@ -60,6 +60,7 @@ app:
   kafka:
     topics:
       payment-events: payment-events
+      payment-requests: payment-requests
 
   jwt:
     # JWT Secret Key - Production'da environment variable kullan!

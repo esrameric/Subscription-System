@@ -7,18 +7,20 @@ import com.subscription.customer.auth.dto.RegisterRequest;
 import com.subscription.customer.auth.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.lang.NonNull;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * AuthController için entegrasyon testleri.
@@ -30,12 +32,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthControllerTest {
 
     @Autowired
-    private WebApplicationContext webApplicationContext; // Spring application context
+    private @NonNull WebApplicationContext webApplicationContext; // Spring application context
 
     private MockMvc mockMvc; // MockMvc: Spring MVC'nin mock versiyonu, HTTP isteklerini simüle eder
 
     @Autowired
-    private ObjectMapper objectMapper; // ObjectMapper: JSON serileştirme/deserileştirme için Jackson kütüphanesi
+    private @NonNull ObjectMapper objectMapper; // ObjectMapper: JSON serileştirme/deserileştirme için Jackson kütüphanesi
 
     @MockBean
     private AuthService authService; // AuthService mock'u: Spring context'te gerçek bean yerine mock kullanılır

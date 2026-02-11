@@ -1,6 +1,5 @@
 package com.subscription.subscription.client;
 
-import com.subscription.subscription.dto.PaymentRequest;
 import com.subscription.subscription.dto.PaymentResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,5 +29,5 @@ public interface PaymentServiceClient {
      * @return PaymentResponse (paymentId, status, transactionId vb.)
      */
     @PostMapping("/api/payments")
-    PaymentResponse createPayment(@RequestBody PaymentRequest request);
+    PaymentResponse createPayment(@RequestBody com.subscription.subscription.dto.PaymentRequest request);
 }
